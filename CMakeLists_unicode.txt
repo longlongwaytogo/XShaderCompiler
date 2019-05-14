@@ -148,12 +148,16 @@ include_directories("${PROJECT_SOURCE_DIR}/src/Compiler/Backend")
 include_directories("${PROJECT_SOURCE_DIR}/src/Compiler/Backend/GLSL")
 include_directories("${PROJECT_SOURCE_DIR}/src/Compiler/Report")
 
+link_directories(${wxWidgets_LIB_DIR})
+
 if(XSC_ENABLE_SPIRV)
 	include_directories("${PROJECT_SOURCE_DIR}/src/Compiler/CFG")
 	include_directories("${PROJECT_SOURCE_DIR}/external/SPIR-V/include")
+	
+	MESSAGE("SPIRV:${PROJECT_SOURCE_DIR}/src/Compiler/CFG,${PROJECT_SOURCE_DIR}/external/SPIR-V/include")
 endif()
 
-
+add_definitions(-DUNICODE -D_UNICODE)
 # === Executable ===
 
 # Library core
@@ -194,19 +198,56 @@ if(XSC_BUILD_DEBUGGER)
 	
 	# wxWidgets Libs
 	find_package(wxWidgets REQUIRED adv aui base core stc propgrid richtext html xml scintilla)
+    #find_package(wxWidgets COMPONENTS  adv aui base core stc propgrid richtext html xml scintilla REQUIRED )
 	if(wxWidgets_FOUND)
 		message("Found wxWidgets library")
+	
+	
+		message("wxWidgets lib:${wxWidgets_LIB_DIR}")
 		include_directories(${wxWidgets_INCLUDE_DIRS})
-		target_link_libraries(xsc_debugger ${wxWidgets_LIBRARIES})
-		
 		# wx cmake module file 
 		include( "${wxWidgets_USE_FILE}" )
-		#set(wxWidgets_CONFIGURATION mswud)
-		#set_target_properties(xsc_debugger PROPERTIES COMPILE_DEFINITIONS  ${wxWidgets_CONFIGURATION} = 1 )	
-else(wxWidgets_FOUND)
+		MESSAGE( "USE_FILE: ${wxWidgets_USE_FILE}")
+		SET(WxLib
+			wxbase31u.lib
+			wxbase31u_net.lib
+			wxbase31u_xml.lib
+			wxexpat.lib
+			wxjpeg.lib
+			wxmsw31u_adv.lib
+			wxmsw31u_aui.lib
+			wxmsw31u_core.lib
+			wxmsw31u_gl.lib
+			wxmsw31u_html.lib
+			wxmsw31u_media.lib
+			wxmsw31u_propgrid.lib
+			wxmsw31u_qa.lib
+			wxmsw31u_ribbon.lib
+			wxmsw31u_richtext.lib
+			wxmsw31u_stc.lib
+			wxmsw31u_webview.lib
+			wxmsw31u_xrc.lib
+			wxpng.lib
+			wxregexu.lib
+			wxscintilla.lib
+			wxtiff.lib
+			wxzlib.lib) 
+		
+		target_link_libraries(xsc_debugger ${wxWidgets_LIBRARIES} ${WxLib} )
+		
+		set(wxWidgets_CONFIGURATION mswud)
+		
+		set_target_properties(xsc_debugger PROPERTIES
+   COMPILE_DEFINITIONS  ${wxWidgets_CONFIGURATION} = 1 
+    )
+		
+		
+		
+		MESSAGE("widgets lib:  ${wxWidgets_LIBRARIES}")
+	else(wxWidgets_FOUND)
 		message(SEND_ERROR "Missing wxWidgets library")
 	endif(wxWidgets_FOUND)
-	
+	MESSAGE("widgets lib:  ${wxWidgets_LIBRARIES}")
 	set(XSC_INSTALL_TARGETS ${XSC_INSTALL_TARGETS} "xsc_debugger")
 endif()
 
